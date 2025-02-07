@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
+import pdb
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm
@@ -23,6 +24,23 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
+
+app.app_context().push()
+
+
+
+##############################################################################
+# debug
+
+@app.route('/debug-test')
+def debug_test():
+    """Route to trigger the debugger and test relationships."""
+
+    user = User.query.first() # Get first user from DB
+    pdb.set_trace() # debugger pauses execution here
+
+    return "Debugger hit! Check the terminal"
+
 
 
 ##############################################################################
