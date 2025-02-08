@@ -29,19 +29,6 @@ app.app_context().push()
 
 
 
-##############################################################################
-# debug
-
-@app.route('/debug-test')
-def debug_test():
-    """Route to trigger the debugger and test relationships."""
-
-    user = User.query.first() # Get first user from DB
-    pdb.set_trace() # debugger pauses execution here
-
-    return "Debugger hit! Check the terminal"
-
-
 
 ##############################################################################
 # User signup/login/logout
@@ -130,8 +117,13 @@ def login():
 @app.route('/logout')
 def logout():
     """Handle logout of user."""
+    
+    do_logout()
+    flash("You have successfully logged out.", "session")
+    return redirect("/login")
 
-    # IMPLEMENT THIS
+
+    
 
 
 ##############################################################################
