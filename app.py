@@ -137,10 +137,10 @@ def list_users():
 
     search = request.args.get('q')
 
-    if not search:
-        users = User.query.all()
-    else:
+    if search:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
+    else:
+        users = User.query.all()
 
     return render_template('users/index.html', users=users)
 
@@ -267,6 +267,38 @@ def delete_user():
 
     return redirect("/signup")
 
+
+##############################################################################
+# Warble routes:
+
+@app.route('/users/add_like/<int:message_id>', methods=["POST"])
+def add_like(message_id):
+    """like/unlike a warble"""
+
+    if not g.user:
+        flash("You must be logged in to like messages!", "danger")
+        return redirect("/")
+    
+    message = Message.query.get_or_404(message_id)
+
+    if message.user_id == g.user.id:
+        flash("You cannot like your own warble...", "danger")
+        return redirect("/")
+    
+    if message in g.user.liked_messages:
+        g.user.liked_messages.remove(message)
+    else:
+        g.user.liked_messages.append(message)
+
+    db.session.commit()
+    return redirect(request.referrer or "/")
+
+@app.route('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Show list of messages a user has liked."""
+
+    user = User.query.get_or_404(user_id)
+    return render_template('/users/likes.html', user=user, messages=user.liked_messages)
 
 ##############################################################################
 # Messages routes:
