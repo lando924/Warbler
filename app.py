@@ -2,7 +2,6 @@ import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
-import pdb
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm, EditUserForm
@@ -331,8 +330,12 @@ def homepage():
     """
 
     if g.user:
+        followed_user_ids = {u.id for u in g.user.following}
+        followed_user_ids.add(g.user.id)
+
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(followed_user_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
